@@ -14,3 +14,49 @@ public void Main()
 
             Dts.TaskResult = (int)ScriptResults.Success;
 		}
+
+/*  SEPARATE CODE  */
+
+public void Main()  
+        {  
+  
+            int nonDataRows = (int)(Dts.Variables["FFNonDataRows"].Value);  
+            string ffConnection = (string)(Dts.Connections["EmptyFlatFileTest"].AcquireConnection(null) as String);  
+            FileInfo flatFileInfo = new FileInfo(ffConnection);  
+            // If file size is 0 bytes, flat file does not contain data.  
+            long fileSize = flatFileInfo.Length;  
+            if (fileSize > 0)  
+            {  
+  
+                int lineCount = 0;  
+                string line;  
+                StreamReader fsFlatFile = new StreamReader(ffConnection);  
+                while (!(fsFlatFile.EndOfStream))  
+                {  
+                    Console.WriteLine (fsFlatFile.ReadLine());  
+                    lineCount += 1;  
+                    // If line count > expected number of non-data rows,  
+                    //  flat file contains data (default value).  
+                    if (lineCount > nonDataRows)  
+                    {  
+                        break;  
+                    }  
+                    // If line count <= expected number of non-data rows,  
+                    //  flat file does not contain data.  
+                    if (lineCount <= nonDataRows)  
+                    {  
+                        Dts.Variables["FFIsEmpty"].Value = true;  
+                    }  
+                }  
+            }  
+            else  
+            {  
+                Dts.Variables["FFIsEmpty"].Value = true;  
+            }  
+  
+            bool fireAgain = false;  
+            Dts.Events.FireInformation(0, "Script Task", String.Format("{0}: {1}", ffConnection, Dts.Variables["FFIsEmpty"].Value), String.Empty, 0, ref fireAgain);  
+  
+            Dts.TaskResult = (int)ScriptResults.Success;  
+  
+        }  
