@@ -1,0 +1,16 @@
+//testing connections
+
+public void Main()
+		{
+            SqlConnection myADONETConnection = 
+                Dts.Connections["Test ADO.NET Connection"].AcquireConnection(Dts.Transaction)
+                as SqlConnection;
+            MessageBox.Show(myADONETConnection.ConnectionString, "ADO.NET Connection");
+
+            string myFlatFileConnection = 
+                Dts.Connections["Test Flat File Connection"].AcquireConnection(Dts.Transaction) 
+                as string;
+            MessageBox.Show(myFlatFileConnection, "Flat File Connection");
+
+            Dts.TaskResult = (int)ScriptResults.Success;
+		}
